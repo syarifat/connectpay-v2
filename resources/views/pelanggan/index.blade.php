@@ -21,6 +21,7 @@
                 <th class="px-5 py-3.5 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider w-10">#</th>
                 <th class="px-5 py-3.5 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Nama Pelanggan</th>
                 <th class="px-5 py-3.5 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">No. HP</th>
+                <th class="px-5 py-3.5 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Tgl Bayar</th>
                 <th class="px-5 py-3.5 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Paket</th>
                 <th class="px-5 py-3.5 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Alamat</th>
                 <th class="px-5 py-3.5 text-right text-xs font-semibold text-slate-400 uppercase tracking-wider">Aksi</th>
@@ -34,6 +35,13 @@
                     <p class="font-semibold text-slate-100">{{ $item->nama }}</p>
                 </td>
                 <td class="px-5 py-4 text-slate-300">{{ $item->no_hp }}</td>
+                <td class="px-5 py-4 text-slate-300">
+                    @if($item->tanggal_pembayaran)
+                        Tgl {{ $item->tanggal_pembayaran }}
+                    @else
+                        <span class="text-slate-600">-</span>
+                    @endif
+                </td>
                 <td class="px-5 py-4">
                     @if($item->paketHarga)
                     <span class="inline-flex items-center px-2.5 py-1 rounded-lg bg-blue-500/15 text-blue-300 text-xs font-medium">

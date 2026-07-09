@@ -30,10 +30,11 @@ class PelangganController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'nama'     => 'required|string|max:150',
-            'alamat'   => 'required|string',
-            'no_hp'    => 'required|string|max:20',
-            'paket_id' => 'required|exists:paket_harga,id',
+            'nama'               => 'required|string|max:150',
+            'alamat'             => 'required|string',
+            'no_hp'              => 'required|string|max:20',
+            'tanggal_pembayaran' => 'required|integer|between:1,31',
+            'paket_id'           => 'required|exists:paket_harga,id',
         ]);
 
         Pelanggan::create($validated);
@@ -52,10 +53,11 @@ class PelangganController extends Controller
     public function update(Request $request, Pelanggan $pelanggan): RedirectResponse
     {
         $validated = $request->validate([
-            'nama'     => 'required|string|max:150',
-            'alamat'   => 'required|string',
-            'no_hp'    => 'required|string|max:20',
-            'paket_id' => 'required|exists:paket_harga,id',
+            'nama'               => 'required|string|max:150',
+            'alamat'             => 'required|string',
+            'no_hp'              => 'required|string|max:20',
+            'tanggal_pembayaran' => 'required|integer|between:1,31',
+            'paket_id'           => 'required|exists:paket_harga,id',
         ]);
 
         $pelanggan->update($validated);

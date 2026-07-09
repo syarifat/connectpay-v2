@@ -14,6 +14,7 @@ class Pelanggan extends Model
         'nama',
         'alamat',
         'no_hp',
+        'tanggal_pembayaran',
         'paket_id',
     ];
 

@@ -42,6 +42,20 @@
                     @error('no_hp') <p class="mt-1.5 text-xs text-red-400">{{ $message }}</p> @enderror
                 </div>
 
+                {{-- Tanggal Pembayaran --}}
+                <div>
+                    <label for="tanggal_pembayaran" class="block text-sm font-medium text-slate-300 mb-1.5">
+                        Tanggal Pembayaran (Hari ke, 1-31) <span class="text-red-400">*</span>
+                    </label>
+                    <input type="number" id="tanggal_pembayaran" name="tanggal_pembayaran" min="1" max="31"
+                           value="{{ old('tanggal_pembayaran', $pelanggan->tanggal_pembayaran) }}"
+                           placeholder="Contoh: 10 (Setiap tanggal 10)"
+                           class="w-full px-4 py-2.5 bg-slate-800 border border-slate-700 text-slate-100 rounded-xl text-sm
+                                  placeholder-slate-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50
+                                  @error('tanggal_pembayaran') border-red-500 @enderror">
+                    @error('tanggal_pembayaran') <p class="mt-1.5 text-xs text-red-400">{{ $message }}</p> @enderror
+                </div>
+
                 {{-- Alamat --}}
                 <div>
                     <label for="alamat" class="block text-sm font-medium text-slate-300 mb-1.5">
