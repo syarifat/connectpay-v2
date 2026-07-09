@@ -84,7 +84,8 @@
             </div>
         </div>
         <div style="text-align:right; font-size:10px; color:#64748b; line-height:1.8;">
-            <p style="margin:0;">Dsn. Patik, Ds. Batangsaren, Kec. Kauman, Kab. Tulungagung</p>
+            <p style="margin:0;">Dsn. Patik, Ds. Batangsaren</p>
+            <p style="margin:0;">Kec. Kauman, Kab. Tulungagung</p>
             <p style="margin:0;">WhatsApp: +62878-5901-7087</p>
         </div>
     </div>
