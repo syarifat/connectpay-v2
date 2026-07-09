@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\CicilanPembayaran;
 use App\Models\DetailNotaCustom;
 use App\Models\NotaCustom;
+use App\Models\PaketHarga;
 use App\Models\Pelanggan;
 use App\Models\PembayaranWifi;
 use Illuminate\Http\JsonResponse;
@@ -418,5 +419,251 @@ class ApiController extends Controller
                 'message' => 'Gagal memproses pengingat tagihan: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    /**
+     * POST /api/pelanggan
+     */
+    public function storePelanggan(Request $request): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'nama'               => 'required|string|max:150',
+            'alamat'             => 'required|string',
+            'no_hp'              => 'required|string|max:20',
+            'tanggal_pembayaran' => 'required|integer|between:1,31',
+            'paket_id'           => 'required|exists:paket_harga,id',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal.',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $pelanggan = Pelanggan::create($request->all());
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Pelanggan berhasil ditambahkan.',
+            'data' => $pelanggan->load('paketHarga')
+        ], 201);
+    }
+
+    /**
+     * PUT /api/pelanggan/{id}
+     */
+    public function updatePelanggan(Request $request, $id): JsonResponse
+    {
+        $pelanggan = Pelanggan::find($id);
+        if (!$pelanggan) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Pelanggan tidak ditemukan.'
+            ], 404);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'nama'               => 'required|string|max:150',
+            'alamat'             => 'required|string',
+            'no_hp'              => 'required|string|max:20',
+            'tanggal_pembayaran' => 'required|integer|between:1,31',
+            'paket_id'           => 'required|exists:paket_harga,id',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal.',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $pelanggan->update($request->all());
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Pelanggan berhasil diperbarui.',
+            'data' => $pelanggan->load('paketHarga')
+        ]);
+    }
+
+    /**
+     * DELETE /api/pelanggan/{id}
+     */
+    public function deletePelanggan($id): JsonResponse
+    {
+        $pelanggan = Pelanggan::find($id);
+        if (!$pelanggan) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Pelanggan tidak ditemukan.'
+            ], 404);
+        }
+
+        if ($pelanggan->pembayaranWifi()->exists()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Pelanggan tidak dapat dihapus karena sudah memiliki riwayat pembayaran.'
+            ], 422);
+        }
+
+        $pelanggan->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Pelanggan berhasil dihapus.'
+        ]);
+    }
+
+    /**
+     * GET /api/paket-harga
+     */
+    public function getPaketHarga(): JsonResponse
+    {
+        $paketHarga = PaketHarga::orderBy('nama_paket')->get();
+        return response()->json([
+            'success' => true,
+            'data' => $paketHarga
+        ]);
+    }
+
+    /**
+     * POST /api/paket-harga
+     */
+    public function storePaketHarga(Request $request): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'nama_paket' => 'required|string|max:100',
+            'harga'      => 'required|numeric|min:0',
+            'deskripsi'  => 'nullable|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal.',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $paketHarga = PaketHarga::create($request->all());
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Paket harga berhasil ditambahkan.',
+            'data' => $paketHarga
+        ], 201);
+    }
+
+    /**
+     * PUT /api/paket-harga/{id}
+     */
+    public function updatePaketHarga(Request $request, $id): JsonResponse
+    {
+        $paketHarga = PaketHarga::find($id);
+        if (!$paketHarga) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Paket harga tidak ditemukan.'
+            ], 404);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'nama_paket' => 'required|string|max:100',
+            'harga'      => 'required|numeric|min:0',
+            'deskripsi'  => 'nullable|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal.',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $paketHarga->update($request->all());
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Paket harga berhasil diperbarui.',
+            'data' => $paketHarga
+        ]);
+    }
+
+    /**
+     * DELETE /api/paket-harga/{id}
+     */
+    public function deletePaketHarga($id): JsonResponse
+    {
+        $paketHarga = PaketHarga::find($id);
+        if (!$paketHarga) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Paket harga tidak ditemukan.'
+            ], 404);
+        }
+
+        if ($paketHarga->pelanggan()->exists()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Paket harga tidak dapat dihapus karena masih digunakan oleh pelanggan.'
+            ], 422);
+        }
+
+        $paketHarga->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Paket harga berhasil dihapus.'
+        ]);
+    }
+
+    /**
+     * POST /api/wa-test-send
+     */
+    public function postWaTestSend(Request $request): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'target'  => 'required|string',
+            'message' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal.',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $target = $request->target;
+        if (str_starts_with($target, '0')) {
+            $target = '62' . substr($target, 1);
+        }
+
+        $fonnte = new \App\Services\FonnteService();
+        $result = $fonnte->sendMessage($target, $request->message);
+
+        if ($result['success']) {
+            \App\Models\WaChatHistory::create([
+                'target' => $request->target,
+                'message' => $request->message,
+                'status' => 'sent',
+                'response' => json_encode($result['raw'] ?? []),
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Pesan uji coba berhasil terkirim ke WhatsApp.'
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Gagal mengirim pesan: ' . ($result['message'] ?? 'Unknown error')
+        ], 500);
     }
 }

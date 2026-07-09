@@ -10,6 +10,14 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/pelanggan', [ApiController::class, 'getPelanggan']);
+Route::post('/pelanggan', [ApiController::class, 'storePelanggan']);
+Route::put('/pelanggan/{id}', [ApiController::class, 'updatePelanggan']);
+Route::delete('/pelanggan/{id}', [ApiController::class, 'deletePelanggan']);
+
+Route::get('/paket-harga', [ApiController::class, 'getPaketHarga']);
+Route::post('/paket-harga', [ApiController::class, 'storePaketHarga']);
+Route::put('/paket-harga/{id}', [ApiController::class, 'updatePaketHarga']);
+Route::delete('/paket-harga/{id}', [ApiController::class, 'deletePaketHarga']);
 
 Route::get('/tagihan-wifi', [ApiController::class, 'getTagihanWifi']);
 Route::get('/tagihan-wifi/cek-cicilan/{pelanggan_id}', [ApiController::class, 'cekCicilanLalu']);
@@ -25,4 +33,5 @@ Route::post('/nota-custom', [ApiController::class, 'storeNotaCustom']);
 
 Route::get('/wa-status', [ApiController::class, 'getWaStatus']);
 Route::get('/wa-history', [ApiController::class, 'getWaHistory']);
+Route::post('/wa-test-send', [ApiController::class, 'postWaTestSend']);
 Route::get('/send-billing-reminders', [ApiController::class, 'triggerBillingReminders']);
