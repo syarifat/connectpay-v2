@@ -142,138 +142,150 @@ class TagihanWifiController extends Controller
      */
     public function generateImage(int $id)
     {
-        $tagihan = PembayaranWifi::with([
-            'pelanggan.paketHarga',
-            'cicilanPembayaran',
-        ])->findOrFail($id);
+        try {
+            if (!extension_loaded('gd')) {
+                throw new \Exception("Ekstensi PHP 'gd' tidak diaktifkan di server produksi Anda. Silakan aktifkan ekstensi 'gd' di konfigurasi PHP/cPanel server Anda agar dapat menghasilkan gambar tagihan.");
+            }
 
-        $tunggakanLain = PembayaranWifi::where('pelanggan_id', $tagihan->pelanggan_id)
-            ->where('id', '!=', $tagihan->id)
-            ->belumLunas()
-            ->get();
+            $tagihan = PembayaranWifi::with([
+                'pelanggan.paketHarga',
+                'cicilanPembayaran',
+            ])->findOrFail($id);
 
-        $totalTunggakan = $tunggakanLain->sum('sisa_tagihan');
-        $grandTotal = $tagihan->sisa_tagihan + $totalTunggakan;
+            $tunggakanLain = PembayaranWifi::where('pelanggan_id', $tagihan->pelanggan_id)
+                ->where('id', '!=', $tagihan->id)
+                ->belumLunas()
+                ->get();
 
-        // Create image: 600 x 850
-        $width = 600;
-        $height = 850;
-        $im = imagecreatetruecolor($width, $height);
+            $totalTunggakan = $tunggakanLain->sum('sisa_tagihan');
+            $grandTotal = $tagihan->sisa_tagihan + $totalTunggakan;
 
-        // Define colors
-        $white = imagecolorallocate($im, 255, 255, 255);
-        $bg = imagecolorallocate($im, 248, 250, 252); // Slate light background (f8fafc)
-        $primary = imagecolorallocate($im, 37, 99, 235); // Primary Blue (2563eb)
-        $textDark = imagecolorallocate($im, 15, 23, 42); // Slate dark text (0f172a)
-        $textMuted = imagecolorallocate($im, 100, 116, 139); // Slate secondary text (64748b)
-        $border = imagecolorallocate($im, 226, 232, 240); // Slate border (e2e8f0)
-        $green = imagecolorallocate($im, 5, 150, 105); // Emerald Green (059669)
-        $greenBg = imagecolorallocate($im, 209, 250, 229); // Light green background (d1fae5)
-        $red = imagecolorallocate($im, 220, 38, 38); // Alert Red (dc2626)
-        $redBg = imagecolorallocate($im, 254, 226, 226); // Light red background (fee2e2)
+            // Create image: 600 x 850
+            $width = 600;
+            $height = 850;
+            $im = imagecreatetruecolor($width, $height);
 
-        // Fill background
-        imagefill($im, 0, 0, $bg);
+            // Define colors
+            $white = imagecolorallocate($im, 255, 255, 255);
+            $bg = imagecolorallocate($im, 248, 250, 252); // Slate light background (f8fafc)
+            $primary = imagecolorallocate($im, 37, 99, 235); // Primary Blue (2563eb)
+            $textDark = imagecolorallocate($im, 15, 23, 42); // Slate dark text (0f172a)
+            $textMuted = imagecolorallocate($im, 100, 116, 139); // Slate secondary text (64748b)
+            $border = imagecolorallocate($im, 226, 232, 240); // Slate border (e2e8f0)
+            $green = imagecolorallocate($im, 5, 150, 105); // Emerald Green (059669)
+            $greenBg = imagecolorallocate($im, 209, 250, 229); // Light green background (d1fae5)
+            $red = imagecolorallocate($im, 220, 38, 38); // Alert Red (dc2626)
+            $redBg = imagecolorallocate($im, 254, 226, 226); // Light red background (fee2e2)
 
-        // Draw card background
-        imagefilledrectangle($im, 20, 20, 580, 830, $white);
-        imagerectangle($im, 20, 20, 580, 830, $border);
+            // Fill background
+            imagefill($im, 0, 0, $bg);
 
-        // Header block
-        imagefilledrectangle($im, 21, 21, 579, 120, $primary);
+            // Draw card background
+            imagefilledrectangle($im, 20, 20, 580, 830, $white);
+            imagerectangle($im, 20, 20, 580, 830, $border);
 
-        // Text rendering helper
-        $fontPath = '/System/Library/Fonts/Supplemental/Arial.ttf';
-        $fontBoldPath = '/System/Library/Fonts/Supplemental/Arial Bold.ttf';
+            // Header block
+            imagefilledrectangle($im, 21, 21, 579, 120, $primary);
 
-        if (file_exists($fontPath)) {
-            // Title
-            imagettftext($im, 20, 0, 40, 65, $white, $fontBoldPath, "CONNECTPAY INVOICE");
-            imagettftext($im, 11, 0, 40, 95, $white, $fontPath, "Layanan Tagihan Internet WiFi");
+            // Text rendering helper
+            $fontPath = '/System/Library/Fonts/Supplemental/Arial.ttf';
+            $fontBoldPath = '/System/Library/Fonts/Supplemental/Arial Bold.ttf';
 
-            // Invoice Info
-            imagettftext($im, 11, 0, 40, 160, $textMuted, $fontPath, "NO. NOTA TAGIHAN");
-            imagettftext($im, 13, 0, 40, 185, $textDark, $fontBoldPath, "INV/WiFi/" . $tagihan->tahun_tagihan . "/" . str_pad($tagihan->id, 5, '0', STR_PAD_LEFT));
+            if (file_exists($fontPath)) {
+                // Title
+                imagettftext($im, 20, 0, 40, 65, $white, $fontBoldPath, "CONNECTPAY INVOICE");
+                imagettftext($im, 11, 0, 40, 95, $white, $fontPath, "Layanan Tagihan Internet WiFi");
 
-            imagettftext($im, 11, 0, 330, 160, $textMuted, $fontPath, "TANGGAL JATUH TEMPO");
-            imagettftext($im, 13, 0, 330, 185, $textDark, $fontBoldPath, ($tagihan->pelanggan->tanggal_pembayaran ?? 10) . " " . PembayaranWifi::$namaBulan[$tagihan->bulan_tagihan] . " " . $tagihan->tahun_tagihan);
+                // Invoice Info
+                imagettftext($im, 11, 0, 40, 160, $textMuted, $fontPath, "NO. NOTA TAGIHAN");
+                imagettftext($im, 13, 0, 40, 185, $textDark, $fontBoldPath, "INV/WiFi/" . $tagihan->tahun_tagihan . "/" . str_pad($tagihan->id, 5, '0', STR_PAD_LEFT));
 
-            // Divider
-            imageline($im, 40, 210, 560, 210, $border);
+                imagettftext($im, 11, 0, 330, 160, $textMuted, $fontPath, "TANGGAL JATUH TEMPO");
+                imagettftext($im, 13, 0, 330, 185, $textDark, $fontBoldPath, ($tagihan->pelanggan->tanggal_pembayaran ?? 10) . " " . PembayaranWifi::$namaBulan[$tagihan->bulan_tagihan] . " " . $tagihan->tahun_tagihan);
 
-            // Pelanggan Info
-            imagettftext($im, 11, 0, 40, 240, $textMuted, $fontPath, "DITAGIHKAN KEPADA");
-            imagettftext($im, 14, 0, 40, 265, $textDark, $fontBoldPath, $tagihan->pelanggan->nama);
-            imagettftext($im, 11, 0, 40, 290, $textMuted, $fontPath, "No. WA: " . $tagihan->pelanggan->no_hp);
-            imagettftext($im, 11, 0, 40, 312, $textMuted, $fontPath, "Alamat: " . $tagihan->pelanggan->alamat);
+                // Divider
+                imageline($im, 40, 210, 560, 210, $border);
 
-            // Divider
-            imageline($im, 40, 340, 560, 340, $border);
+                // Pelanggan Info
+                imagettftext($im, 11, 0, 40, 240, $textMuted, $fontPath, "DITAGIHKAN KEPADA");
+                imagettftext($im, 14, 0, 40, 265, $textDark, $fontBoldPath, $tagihan->pelanggan->nama);
+                imagettftext($im, 11, 0, 40, 290, $textMuted, $fontPath, "No. WA: " . $tagihan->pelanggan->no_hp);
+                imagettftext($im, 11, 0, 40, 312, $textMuted, $fontPath, "Alamat: " . $tagihan->pelanggan->alamat);
 
-            // Rincian Tagihan
-            imagettftext($im, 12, 0, 40, 375, $textDark, $fontBoldPath, "DESKRIPSI LAYANAN");
-            imagettftext($im, 12, 0, 450, 375, $textDark, $fontBoldPath, "JUMLAH");
+                // Divider
+                imageline($im, 40, 340, 560, 340, $border);
 
-            // Item 1: Paket internet
-            $paketName = $tagihan->pelanggan->paketHarga->nama_paket ?? "Paket Internet";
-            imagettftext($im, 11, 0, 40, 415, $textDark, $fontPath, "Biaya Berlangganan: " . $paketName);
-            imagettftext($im, 11, 0, 40, 435, $textMuted, $fontPath, "Periode " . PembayaranWifi::$namaBulan[$tagihan->bulan_tagihan] . " " . $tagihan->tahun_tagihan);
-            imagettftext($im, 12, 0, 450, 425, $textDark, $fontBoldPath, "Rp " . number_format($tagihan->total_tagihan, 0, ',', '.'));
+                // Rincian Tagihan
+                imagettftext($im, 12, 0, 40, 375, $textDark, $fontBoldPath, "DESKRIPSI LAYANAN");
+                imagettftext($im, 12, 0, 450, 375, $textDark, $fontBoldPath, "JUMLAH");
 
-            // Divider
-            imageline($im, 40, 465, 560, 465, $border);
+                // Item 1: Paket internet
+                $paketName = $tagihan->pelanggan->paketHarga->nama_paket ?? "Paket Internet";
+                imagettftext($im, 11, 0, 40, 415, $textDark, $fontPath, "Biaya Berlangganan: " . $paketName);
+                imagettftext($im, 11, 0, 40, 435, $textMuted, $fontPath, "Periode " . PembayaranWifi::$namaBulan[$tagihan->bulan_tagihan] . " " . $tagihan->tahun_tagihan);
+                imagettftext($im, 12, 0, 450, 425, $textDark, $fontBoldPath, "Rp " . number_format($tagihan->total_tagihan, 0, ',', '.'));
 
-            // Tunggakan rincian
-            $currentY = 500;
-            if ($totalTunggakan > 0) {
-                imagettftext($im, 11, 0, 40, $currentY, $textDark, $fontPath, "Tunggakan Bulan Sebelumnya:");
-                $currentY += 25;
-                foreach ($tunggakanLain as $t) {
-                    imagettftext($im, 10, 0, 60, $currentY, $red, $fontPath, "- Periode " . PembayaranWifi::$namaBulan[$t->bulan_tagihan] . " " . $t->tahun_tagihan);
-                    imagettftext($im, 11, 0, 450, $currentY, $red, $fontBoldPath, "Rp " . number_format($t->sisa_tagihan, 0, ',', '.'));
+                // Divider
+                imageline($im, 40, 465, 560, 465, $border);
+
+                // Tunggakan rincian
+                $currentY = 500;
+                if ($totalTunggakan > 0) {
+                    imagettftext($im, 11, 0, 40, $currentY, $textDark, $fontPath, "Tunggakan Bulan Sebelumnya:");
                     $currentY += 25;
+                    foreach ($tunggakanLain as $t) {
+                        imagettftext($im, 10, 0, 60, $currentY, $red, $fontPath, "- Periode " . PembayaranWifi::$namaBulan[$t->bulan_tagihan] . " " . $t->tahun_tagihan);
+                        imagettftext($im, 11, 0, 450, $currentY, $red, $fontBoldPath, "Rp " . number_format($t->sisa_tagihan, 0, ',', '.'));
+                        $currentY += 25;
+                    }
+                    imageline($im, 40, $currentY, 560, $currentY, $border);
+                    $currentY += 35;
                 }
-                imageline($im, 40, $currentY, 560, $currentY, $border);
-                $currentY += 35;
-            }
 
-            // Total Keseluruhan
-            imagettftext($im, 14, 0, 40, $currentY, $textDark, $fontBoldPath, "TOTAL PEMBAYARAN");
-            imagettftext($im, 18, 0, 420, $currentY + 5, $primary, $fontBoldPath, "Rp " . number_format($grandTotal, 0, ',', '.'));
+                // Total Keseluruhan
+                imagettftext($im, 14, 0, 40, $currentY, $textDark, $fontBoldPath, "TOTAL PEMBAYARAN");
+                imagettftext($im, 18, 0, 420, $currentY + 5, $primary, $fontBoldPath, "Rp " . number_format($grandTotal, 0, ',', '.'));
 
-            // Status Stamp
-            $statusY = $currentY + 60;
-            if ($tagihan->status === PembayaranWifi::STATUS_LUNAS) {
-                imagefilledrectangle($im, 40, $statusY, 200, $statusY + 45, $greenBg);
-                imagerectangle($im, 40, $statusY, 200, $statusY + 45, $green);
-                imagettftext($im, 13, 0, 85, $statusY + 28, $green, $fontBoldPath, "LUNAS");
+                // Status Stamp
+                $statusY = $currentY + 60;
+                if ($tagihan->status === PembayaranWifi::STATUS_LUNAS) {
+                    imagefilledrectangle($im, 40, $statusY, 200, $statusY + 45, $greenBg);
+                    imagerectangle($im, 40, $statusY, 200, $statusY + 45, $green);
+                    imagettftext($im, 13, 0, 85, $statusY + 28, $green, $fontBoldPath, "LUNAS");
+                } else {
+                    imagefilledrectangle($im, 40, $statusY, 240, $statusY + 45, $redBg);
+                    imagerectangle($im, 40, $statusY, 240, $statusY + 45, $red);
+                    imagettftext($im, 12, 0, 70, $statusY + 28, $red, $fontBoldPath, "BELUM DIBAYAR");
+                }
+
+                // Footer note
+                imagettftext($im, 9, 0, 40, 800, $textMuted, $fontPath, "* Mohon lakukan pembayaran tepat waktu agar kenyamanan internet tetap terjaga.");
+                imagettftext($im, 9, 0, 40, 815, $textMuted, $fontPath, "* Hubungi Admin jika Anda memerlukan bantuan pembayaran.");
+
             } else {
-                imagefilledrectangle($im, 40, $statusY, 240, $statusY + 45, $redBg);
-                imagerectangle($im, 40, $statusY, 240, $statusY + 45, $red);
-                imagettftext($im, 12, 0, 70, $statusY + 28, $red, $fontBoldPath, "BELUM DIBAYAR");
+                // Fallback to built-in GD fonts if TTF fonts are not found
+                imagestring($im, 5, 40, 40, "CONNECTPAY INVOICE", $primary);
+                imageline($im, 40, 70, 560, 70, $border);
+                imagestring($im, 4, 40, 90, "Invoice: INV/WiFi/" . $tagihan->tahun_tagihan . "/" . $tagihan->id, $textDark);
+                imagestring($im, 4, 40, 115, "Customer: " . $tagihan->pelanggan->nama, $textDark);
+                imagestring($im, 4, 40, 140, "Total: Rp " . number_format($grandTotal, 0, ',', '.'), $textDark);
+                imagestring($im, 4, 40, 165, "Status: " . strtoupper($tagihan->status), $red);
             }
 
-            // Footer note
-            imagettftext($im, 9, 0, 40, 800, $textMuted, $fontPath, "* Mohon lakukan pembayaran tepat waktu agar kenyamanan internet tetap terjaga.");
-            imagettftext($im, 9, 0, 40, 815, $textMuted, $fontPath, "* Hubungi Admin jika Anda memerlukan bantuan pembayaran.");
+            // Output image
+            ob_start();
+            imagepng($im);
+            $contents = ob_get_clean();
+            imagedestroy($im);
 
-        } else {
-            // Fallback to built-in GD fonts if TTF fonts are not found
-            imagestring($im, 5, 40, 40, "CONNECTPAY INVOICE", $primary);
-            imageline($im, 40, 70, 560, 70, $border);
-            imagestring($im, 4, 40, 90, "Invoice: INV/WiFi/" . $tagihan->tahun_tagihan . "/" . $tagihan->id, $textDark);
-            imagestring($im, 4, 40, 115, "Customer: " . $tagihan->pelanggan->nama, $textDark);
-            imagestring($im, 4, 40, 140, "Total: Rp " . number_format($grandTotal, 0, ',', '.'), $textDark);
-            imagestring($im, 4, 40, 165, "Status: " . strtoupper($tagihan->status), $red);
+            return response($contents, 200)
+                ->header('Content-Type', 'image/png');
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ], 500);
         }
-
-        // Output image
-        ob_start();
-        imagepng($im);
-        $contents = ob_get_clean();
-        imagedestroy($im);
-
-        return response($contents, 200)
-            ->header('Content-Type', 'image/png');
     }
 }
