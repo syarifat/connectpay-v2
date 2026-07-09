@@ -84,9 +84,8 @@
             </div>
         </div>
         <div style="text-align:right; font-size:10px; color:#64748b; line-height:1.8;">
-            <p style="margin:0;">Jl. Contoh No. 123, Kota Anda 12345</p>
-            <p style="margin:0;">Telp: 0812-3456-7890 | WA: 0812-3456-7890</p>
-            <p style="margin:0;">Email: admin@connectpay.id</p>
+            <p style="margin:0;">Dsn. Patik, Ds. Batangsaren, Kec. Kauman, Kab. Tulungagung</p>
+            <p style="margin:0;">WhatsApp: +62878-5901-7087</p>
         </div>
     </div>
 
@@ -177,9 +176,8 @@
         </p>
     </div>
 
-    {{-- Footer nota --}}
     <p style="text-align:center; font-size:9px; color:#94a3b8; margin-top:10px; padding-top:6px; border-top:1px solid #f1f5f9;">
-        ConnectPay — Jl. Contoh No. 123 | Telp. 0812-3456-7890 | Dicetak: {{ now()->isoFormat('D MMMM Y, HH:mm') }}
+        ConnectPay — Dsn. Patik, Ds. Batangsaren, Kec. Kauman, Kab. Tulungagung | WhatsApp: +62878-5901-7087 | Dicetak: {{ now()->isoFormat('D MMMM Y, HH:mm') }}
     </p>
 
 </div>{{-- /page --}}

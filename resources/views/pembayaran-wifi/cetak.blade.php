@@ -77,9 +77,8 @@
             </div>
         </div>
         <div class="text-right" style="font-size:10px; color:#64748b; line-height:1.7;">
-            <p>Jl. Contoh No. 123, Kota Anda</p>
-            <p>Telp: 0812-3456-7890</p>
-            <p>Email: admin@connectpay.id</p>
+            <p>Dsn. Patik, Ds. Batangsaren, Kec. Kauman, Kab. Tulungagung</p>
+            <p>WhatsApp: +62878-5901-7087</p>
         </div>
     </div>
 
