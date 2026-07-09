@@ -13,6 +13,11 @@ return new class extends Migration
     {
         Schema::create('wa_chat_histories', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('pelanggan_id')->nullable()->constrained('pelanggan')->nullOnDelete();
+            $table->string('target', 30);
+            $table->text('message');
+            $table->string('status', 20)->default('pending');
+            $table->text('response')->nullable();
             $table->timestamps();
         });
     }

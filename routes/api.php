@@ -22,3 +22,7 @@ Route::post('/pembayaran-wifi', [ApiController::class, 'storePembayaranWifi']);
 Route::get('/nota-custom', [ApiController::class, 'getNotaCustom']);
 Route::get('/nota-custom/{id}', [ApiController::class, 'getNotaCustomDetail']);
 Route::post('/nota-custom', [ApiController::class, 'storeNotaCustom']);
+
+Route::get('/wa-status', [ApiController::class, 'getWaStatus']);
+Route::get('/wa-history', [ApiController::class, 'getWaHistory']);
+Route::get('/send-billing-reminders', [ApiController::class, 'triggerBillingReminders']);

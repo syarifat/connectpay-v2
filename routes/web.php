@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\FonnteController;
 use App\Http\Controllers\NotaCustomController;
 use App\Http\Controllers\PaketHargaController;
 use App\Http\Controllers\PelangganController;
@@ -54,3 +55,11 @@ Route::resource('nota-custom', NotaCustomController::class)
 
 Route::get('nota-custom/{id}/cetak', [NotaCustomController::class, 'cetak'])
     ->name('nota-custom.cetak');
+
+// ─── Fonnte & WA Logs ────────────────────────────────────────────────────────
+Route::get('wa-status', [FonnteController::class, 'status'])
+    ->name('wa-status.index');
+Route::get('wa-history', [FonnteController::class, 'history'])
+    ->name('wa-history.index');
+Route::post('wa-test-send', [FonnteController::class, 'testSend'])
+    ->name('wa-status.test-send');

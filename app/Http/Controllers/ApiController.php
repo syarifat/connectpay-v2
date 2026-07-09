@@ -366,4 +366,57 @@ class ApiController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * GET /api/wa-status
+     */
+    public function getWaStatus(): JsonResponse
+    {
+        $fonnte = new \App\Services\FonnteService();
+        $status = $fonnte->getDeviceStatus();
+
+        return response()->json([
+            'success' => true,
+            'data' => $status
+        ]);
+    }
+
+    /**
+     * GET /api/wa-history
+     */
+    public function getWaHistory(Request $request): JsonResponse
+    {
+        $query = \App\Models\WaChatHistory::with('pelanggan')->latest();
+
+        if ($request->filled('date')) {
+            $query->whereDate('created_at', $request->date);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $query->get()
+        ]);
+    }
+
+    /**
+     * GET /api/send-billing-reminders
+     */
+    public function triggerBillingReminders(): JsonResponse
+    {
+        try {
+            \Illuminate\Support\Facades\Artisan::call('app:send-billing-reminders');
+            $output = \Illuminate\Support\Facades\Artisan::output();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Billing reminders triggered successfully.',
+                'output' => trim($output)
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memproses pengingat tagihan: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

@@ -150,6 +150,32 @@
             </svg>
             Paket Harga
         </a>
+
+        {{-- Divider WhatsApp --}}
+        <div class="pt-3 pb-1">
+            <p class="px-3 text-xs font-semibold text-slate-600 uppercase tracking-wider">WhatsApp Gateway</p>
+        </div>
+
+        {{-- WhatsApp Status --}}
+        <a href="{{ route('wa-status.index') }}"
+           class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150
+                  {{ request()->routeIs('wa-status.*') ? 'nav-active text-blue-300' : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800' }}">
+            <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 18a3.75 3.75 0 00.495-7.467 5.99 5.99 0 00-1.925 3.546 5.974 5.974 0 01-2.133-1A3.75 3.75 0 0012 18z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 8.511c.083.473.125.959.125 1.45 0 4.14-3.136 7.5-7 7.5a6.974 6.974 0 01-3.327-.831l-3.336 1.112c-.782.26-1.54-.424-1.391-1.228l.617-3.337A7.472 7.472 0 014.125 10c0-4.14 3.136-7.5 7-7.5 1.58 0 3.037.553 4.195 1.488" />
+            </svg>
+            Status Fonnte
+        </a>
+
+        {{-- Riwayat Chat --}}
+        <a href="{{ route('wa-history.index') }}"
+           class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150
+                  {{ request()->routeIs('wa-history.*') ? 'nav-active text-blue-300' : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800' }}">
+            <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
+            </svg>
+            Riwayat Chat
+        </a>
     </nav>
 
     {{-- Footer --}}
