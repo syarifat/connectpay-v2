@@ -176,6 +176,18 @@
             </svg>
             Riwayat Chat
         </a>
+
+        {{-- Logout --}}
+        <div class="pt-3 pb-1">
+            <p class="px-3 text-xs font-semibold text-slate-600 uppercase tracking-wider">Akses</p>
+        </div>
+        <a href="{{ route('logout') }}"
+           class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 text-red-400 hover:text-red-300 hover:bg-slate-800">
+            <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
+            </svg>
+            Logout
+        </a>
     </nav>
 
     {{-- Footer --}}
