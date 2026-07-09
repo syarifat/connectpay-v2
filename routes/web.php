@@ -22,11 +22,11 @@ Route::any('/logout', [LoginController::class, 'logout'])->name('logout');
 
 // ─── Customer Public Links (No Auth Required) ────────────────────────────────
 // Cetak kuitansi tagihan
-Route::get('tagihan-wifi/{id}/cetak', [TagihanWifiController::class, 'cetak'])
+Route::get('tagihan-wifi/{secure_key}/cetak', [TagihanWifiController::class, 'cetak'])
     ->name('tagihan-wifi.cetak');
 
 // Render image tagihan
-Route::get('tagihan-wifi/{id}/image', [TagihanWifiController::class, 'generateImage'])
+Route::get('tagihan-wifi/{secure_key}/image', [TagihanWifiController::class, 'generateImage'])
     ->name('tagihan-wifi.image');
 
 // Cetak kuitansi nota custom

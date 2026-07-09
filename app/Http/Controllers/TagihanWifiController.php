@@ -94,12 +94,12 @@ class TagihanWifiController extends Controller
      * Selain tagihan utama, juga tampilkan tunggakan bulan-bulan sebelumnya
      * milik pelanggan yang sama (status Belum Dibayar / Cicilan).
      */
-    public function cetak(int $id): View
+    public function cetak(string $secureKey): View
     {
         $tagihan = PembayaranWifi::with([
             'pelanggan.paketHarga',
             'cicilanPembayaran',
-        ])->findOrFail($id);
+        ])->where('secure_key', $secureKey)->firstOrFail();
 
         // Tagihan lain (bulan berbeda) milik pelanggan yang sama yang belum lunas,
         // urut dari yang terlama → paling baru, kecuali tagihan saat ini
@@ -140,7 +140,7 @@ class TagihanWifiController extends Controller
     /**
      * Generate dynamic billing invoice as PNG image.
      */
-    public function generateImage(int $id)
+    public function generateImage(string $secureKey)
     {
         try {
             if (!extension_loaded('gd')) {
@@ -150,7 +150,7 @@ class TagihanWifiController extends Controller
             $tagihan = PembayaranWifi::with([
                 'pelanggan.paketHarga',
                 'cicilanPembayaran',
-            ])->findOrFail($id);
+            ])->where('secure_key', $secureKey)->firstOrFail();
 
             $tunggakanLain = PembayaranWifi::where('pelanggan_id', $tagihan->pelanggan_id)
                 ->where('id', '!=', $tagihan->id)

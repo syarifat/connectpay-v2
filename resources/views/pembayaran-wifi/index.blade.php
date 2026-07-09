@@ -57,7 +57,7 @@
                 </td>
                 <td class="px-5 py-4 text-right">
                     @if($tagihan)
-                    <a href="{{ route('tagihan-wifi.cetak', $tagihan->id) }}" target="_blank"
+                    <a href="{{ route('tagihan-wifi.cetak', $tagihan->secure_key) }}" target="_blank"
                        class="px-3 py-1.5 text-xs font-medium text-slate-300 border border-slate-700 rounded-lg hover:bg-slate-800 transition-colors">
                         Kuitansi
                     </a>

@@ -89,7 +89,7 @@
                             Bayar
                         </a>
                         @endif
-                        <a href="{{ route('tagihan-wifi.cetak', $item->id) }}" target="_blank"
+                        <a href="{{ route('tagihan-wifi.cetak', $item->secure_key) }}" target="_blank"
                            class="px-3 py-1.5 text-xs font-medium text-slate-300 border border-slate-700 rounded-lg hover:bg-slate-800 transition-colors">
                             Cetak
                         </a>

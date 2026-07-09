@@ -87,7 +87,7 @@ class SendBillingReminders extends Command
             }
 
             // Generate link invoice/kuitansi cetak
-            $invoiceUrl = route('tagihan-wifi.cetak', $tagihan->id);
+            $invoiceUrl = route('tagihan-wifi.cetak', $tagihan->secure_key);
             // Replace localhost/local port with the production domain if set
             $ngrokBase = "https://connectpay.satcloud.tech";
             $invoiceUrl = str_replace(url('/'), $ngrokBase, $invoiceUrl);
@@ -99,7 +99,7 @@ class SendBillingReminders extends Command
             $filePath = null;
             try {
                 $controller = new \App\Http\Controllers\TagihanWifiController();
-                $response = $controller->generateImage($tagihan->id);
+                $response = $controller->generateImage($tagihan->secure_key);
                 if ($response->getStatusCode() === 200) {
                     $imageBinary = $response->getContent();
                     $filePath = tempnam(sys_get_temp_dir(), 'inv_') . '.png';

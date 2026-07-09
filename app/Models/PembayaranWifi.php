@@ -18,7 +18,20 @@ class PembayaranWifi extends Model
         'nominal_dibayar',
         'sisa_tagihan',
         'status',
+        'secure_key',
     ];
+
+    protected static function booted()
+    {
+        static::creating(function ($model) {
+            if (empty($model->secure_key)) {
+                do {
+                    $key = \Illuminate\Support\Str::random(20);
+                } while (static::where('secure_key', $key)->exists());
+                $model->secure_key = $key;
+            }
+        });
+    }
 
     protected $casts = [
         'total_tagihan'   => 'decimal:2',
