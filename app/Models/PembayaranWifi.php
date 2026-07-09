@@ -19,6 +19,7 @@ class PembayaranWifi extends Model
         'sisa_tagihan',
         'status',
         'secure_key',
+        'reminder_sent_at',
     ];
 
     protected static function booted()
@@ -34,11 +35,12 @@ class PembayaranWifi extends Model
     }
 
     protected $casts = [
-        'total_tagihan'   => 'decimal:2',
-        'nominal_dibayar' => 'decimal:2',
-        'sisa_tagihan'    => 'decimal:2',
-        'bulan_tagihan'   => 'integer',
-        'tahun_tagihan'   => 'integer',
+        'total_tagihan'    => 'decimal:2',
+        'nominal_dibayar'  => 'decimal:2',
+        'sisa_tagihan'     => 'decimal:2',
+        'bulan_tagihan'    => 'integer',
+        'tahun_tagihan'    => 'integer',
+        'reminder_sent_at' => 'datetime',
     ];
 
     /**
