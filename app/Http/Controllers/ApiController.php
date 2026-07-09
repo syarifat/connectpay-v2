@@ -167,16 +167,33 @@ class ApiController extends Controller
 
     /**
      * GET /api/pembayaran-wifi
-     * Get all payment logs (cicilan)
      */
-    public function getPembayaranWifi(): JsonResponse
+    public function getPembayaranWifi(Request $request): JsonResponse
     {
-        $riwayat = CicilanPembayaran::with(['pembayaranWifi.pelanggan'])
-            ->latest('tanggal_bayar')
-            ->get();
+        $query = CicilanPembayaran::with(['pembayaranWifi.pelanggan'])
+            ->latest('tanggal_bayar');
+
+        if ($request->filled('status')) {
+            $query->whereHas('pembayaranWifi', function ($q) use ($request) {
+                $q->where('status', $request->status);
+            });
+        }
+
+        if ($request->filled('bulan_tagihan')) {
+            $query->whereHas('pembayaranWifi', function ($q) use ($request) {
+                $q->where('bulan_tagihan', $request->bulan_tagihan);
+            });
+        }
+
+        if ($request->filled('tahun_tagihan')) {
+            $query->whereHas('pembayaranWifi', function ($q) use ($request) {
+                $q->where('tahun_tagihan', $request->tahun_tagihan);
+            });
+        }
+
         return response()->json([
             'success' => true,
-            'data' => $riwayat
+            'data' => $query->get()
         ]);
     }
 

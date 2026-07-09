@@ -12,16 +12,37 @@ use Illuminate\View\View;
 
 class PembayaranWifiController extends Controller
 {
-    /**
-     * Riwayat semua transaksi pembayaran (dari tabel cicilan_pembayaran).
-     */
-    public function index(): View
+    public function index(Request $request): View
     {
-        $riwayat = CicilanPembayaran::with(['pembayaranWifi.pelanggan'])
-            ->latest('tanggal_bayar')
-            ->paginate(15);
+        $query = CicilanPembayaran::with(['pembayaranWifi.pelanggan'])
+            ->latest('tanggal_bayar');
 
-        return view('pembayaran-wifi.index', compact('riwayat'));
+        // Filter status tagihan
+        if ($request->filled('status')) {
+            $query->whereHas('pembayaranWifi', function ($q) use ($request) {
+                $q->where('status', $request->status);
+            });
+        }
+
+        // Filter bulan
+        if ($request->filled('bulan_tagihan')) {
+            $query->whereHas('pembayaranWifi', function ($q) use ($request) {
+                $q->where('bulan_tagihan', $request->bulan_tagihan);
+            });
+        }
+
+        // Filter tahun
+        if ($request->filled('tahun_tagihan')) {
+            $query->whereHas('pembayaranWifi', function ($q) use ($request) {
+                $q->where('tahun_tagihan', $request->tahun_tagihan);
+            });
+        }
+
+        $riwayat = $query->paginate(15)->withQueryString();
+        $bulanList = PembayaranWifi::$namaBulan;
+        $tahunList = range(date('Y'), date('Y') - 3);
+
+        return view('pembayaran-wifi.index', compact('riwayat', 'bulanList', 'tahunList'));
     }
 
     /**
