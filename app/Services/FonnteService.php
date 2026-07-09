@@ -15,31 +15,50 @@ class FonnteService
     }
 
     /**
-     * Send message (optional with attachment url / file name)
+     * Send message (optional with attachment url / local file path)
      */
-    public function sendMessage(string $target, string $message, ?string $url = null, ?string $filename = null): array
+    public function sendMessage(string $target, string $message, ?string $url = null, ?string $filename = null, ?string $filePath = null): array
     {
         if (empty($this->token)) {
             Log::warning('Fonnte token is empty. Message not sent.');
             return ['success' => false, 'message' => 'Fonnte token is empty'];
         }
 
-        $payload = [
-            'target' => $target,
-            'message' => $message,
-        ];
-
-        if ($url) {
-            $payload['url'] = $url;
-        }
-        if ($filename) {
-            $payload['filename'] = $filename;
-        }
-
         try {
-            $response = Http::withHeaders([
-                'Authorization' => $this->token
-            ])->post('https://api.fonnte.com/send', $payload);
+            if ($filePath && file_exists($filePath)) {
+                // Send as multipart/form-data for direct file upload (bypasses Cloudflare block)
+                $request = Http::withHeaders([
+                    'Authorization' => $this->token
+                ])->attach(
+                    'file', 
+                    file_get_contents($filePath), 
+                    $filename ?? basename($filePath)
+                );
+
+                $payload = [
+                    'target' => $target,
+                    'message' => $message,
+                ];
+
+                $response = $request->post('https://api.fonnte.com/send', $payload);
+            } else {
+                // Send as standard JSON payload
+                $payload = [
+                    'target' => $target,
+                    'message' => $message,
+                ];
+
+                if ($url) {
+                    $payload['url'] = $url;
+                }
+                if ($filename) {
+                    $payload['filename'] = $filename;
+                }
+
+                $response = Http::withHeaders([
+                    'Authorization' => $this->token
+                ])->post('https://api.fonnte.com/send', $payload);
+            }
 
             $result = $response->json();
             return [

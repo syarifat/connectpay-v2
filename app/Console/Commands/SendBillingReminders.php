@@ -88,16 +88,26 @@ class SendBillingReminders extends Command
 
             // Generate link invoice/kuitansi cetak
             $invoiceUrl = route('tagihan-wifi.cetak', $tagihan->id);
-            // Generate link gambar tagihan
-            $imageUrl = route('tagihan-wifi.image', $tagihan->id);
-            
-            // Replace localhost/local port with the ngrok base url if set
+            // Replace localhost/local port with the production domain if set
             $ngrokBase = "https://connectpay.satcloud.tech";
             $invoiceUrl = str_replace(url('/'), $ngrokBase, $invoiceUrl);
-            $imageUrl = str_replace(url('/'), $ngrokBase, $imageUrl);
 
             $message .= "Rincian nota tagihan & kuitansi Anda dapat dilihat pada link berikut:\n{$invoiceUrl}\n\n";
             $message .= "Silakan lakukan pembayaran agar layanan internet tetap berjalan lancar. Terima kasih banyak.";
+
+            // Generate invoice PNG locally on the server to bypass Cloudflare bot challenge
+            $filePath = null;
+            try {
+                $controller = new \App\Http\Controllers\TagihanWifiController();
+                $response = $controller->generateImage($tagihan->id);
+                if ($response->getStatusCode() === 200) {
+                    $imageBinary = $response->getContent();
+                    $filePath = tempnam(sys_get_temp_dir(), 'inv_') . '.png';
+                    file_put_contents($filePath, $imageBinary);
+                }
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error("Gagal membuat file gambar tagihan sementara: " . $e->getMessage());
+            }
 
             // 4. Ubah nomor HP ke format internasional
             $target = $customer->no_hp;
@@ -105,8 +115,13 @@ class SendBillingReminders extends Command
                 $target = '62' . substr($target, 1);
             }
 
-            // 5. Kirim via Fonnte dengan menyertakan gambar tagihan
-            $result = $fonnte->sendMessage($target, $message, $imageUrl, "invoice_{$tagihan->id}.png");
+            // 5. Kirim via Fonnte dengan mengunggah file gambar secara langsung
+            $result = $fonnte->sendMessage($target, $message, null, "invoice_{$tagihan->id}.png", $filePath);
+
+            // Bersihkan file sementara jika berhasil dibuat
+            if ($filePath && file_exists($filePath)) {
+                unlink($filePath);
+            }
 
             // 6. Catat riwayat chat ke database
             \App\Models\WaChatHistory::create([
