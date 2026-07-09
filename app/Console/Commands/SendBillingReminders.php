@@ -88,9 +88,13 @@ class SendBillingReminders extends Command
 
             // Generate link invoice/kuitansi cetak
             $invoiceUrl = route('tagihan-wifi.cetak', $tagihan->id);
+            // Generate link gambar tagihan
+            $imageUrl = route('tagihan-wifi.image', $tagihan->id);
+            
             // Replace localhost/local port with the ngrok base url if set
-            $ngrokBase = "https://81fc-103-169-135-11.ngrok-free.app";
+            $ngrokBase = "https://connectpay.satcloud.tech";
             $invoiceUrl = str_replace(url('/'), $ngrokBase, $invoiceUrl);
+            $imageUrl = str_replace(url('/'), $ngrokBase, $imageUrl);
 
             $message .= "Rincian nota tagihan & kuitansi Anda dapat dilihat pada link berikut:\n{$invoiceUrl}\n\n";
             $message .= "Silakan lakukan pembayaran agar layanan internet tetap berjalan lancar. Terima kasih banyak.";
@@ -101,8 +105,8 @@ class SendBillingReminders extends Command
                 $target = '62' . substr($target, 1);
             }
 
-            // 5. Kirim via Fonnte
-            $result = $fonnte->sendMessage($target, $message);
+            // 5. Kirim via Fonnte dengan menyertakan gambar tagihan
+            $result = $fonnte->sendMessage($target, $message, $imageUrl, "invoice_{$tagihan->id}.png");
 
             // 6. Catat riwayat chat ke database
             \App\Models\WaChatHistory::create([

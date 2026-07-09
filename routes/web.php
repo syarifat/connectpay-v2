@@ -35,6 +35,10 @@ Route::resource('tagihan-wifi', TagihanWifiController::class)
 Route::get('tagihan-wifi/{id}/cetak', [TagihanWifiController::class, 'cetak'])
     ->name('tagihan-wifi.cetak');
 
+// Render image tagihan
+Route::get('tagihan-wifi/{id}/image', [TagihanWifiController::class, 'generateImage'])
+    ->name('tagihan-wifi.image');
+
 // API: cek cicilan belum lunas milik pelanggan (untuk warning di form buat tagihan)
 Route::get('tagihan-wifi/api/cek-cicilan/{pelanggan_id}', [TagihanWifiController::class, 'cekCicilanLalu'])
     ->name('tagihan-wifi.cek-cicilan');
