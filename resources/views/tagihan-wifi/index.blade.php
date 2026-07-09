@@ -27,6 +27,24 @@
         </select>
     </div>
     <div>
+        <select name="bulan_tagihan"
+                class="px-3 py-2 bg-slate-800 border border-slate-700 text-slate-100 rounded-lg text-sm focus:outline-none focus:border-blue-500">
+            <option value="">Semua Bulan</option>
+            @foreach($bulanList as $num => $nama)
+                <option value="{{ $num }}" {{ request('bulan_tagihan') == $num ? 'selected' : '' }}>{{ $nama }}</option>
+            @endforeach
+        </select>
+    </div>
+    <div>
+        <select name="tahun_tagihan"
+                class="px-3 py-2 bg-slate-800 border border-slate-700 text-slate-100 rounded-lg text-sm focus:outline-none focus:border-blue-500">
+            <option value="">Semua Tahun</option>
+            @foreach($tahunList as $t)
+                <option value="{{ $t }}" {{ request('tahun_tagihan') == $t ? 'selected' : '' }}>{{ $t }}</option>
+            @endforeach
+        </select>
+    </div>
+    <div>
         <select name="status"
                 class="px-3 py-2 bg-slate-800 border border-slate-700 text-slate-100 rounded-lg text-sm focus:outline-none focus:border-blue-500">
             <option value="">Semua Status</option>
@@ -39,7 +57,7 @@
             class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm font-medium rounded-lg transition-colors">
         Filter
     </button>
-    @if(request('status') || request('pelanggan_id'))
+    @if(request('status') || request('pelanggan_id') || request('bulan_tagihan') || request('tahun_tagihan'))
     <a href="{{ route('tagihan-wifi.index') }}"
        class="px-3 py-2 text-slate-500 hover:text-slate-300 text-sm transition-colors">Reset</a>
     @endif

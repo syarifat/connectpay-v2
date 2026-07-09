@@ -27,10 +27,23 @@ class TagihanWifiController extends Controller
             $query->where('pelanggan_id', $request->pelanggan_id);
         }
 
+        // Filter bulan
+        if ($request->filled('bulan_tagihan')) {
+            $query->where('bulan_tagihan', $request->bulan_tagihan);
+        }
+
+        // Filter tahun
+        if ($request->filled('tahun_tagihan')) {
+            $query->where('tahun_tagihan', $request->tahun_tagihan);
+        }
+
         $tagihan   = $query->paginate(15)->withQueryString();
         $pelanggan = Pelanggan::orderBy('nama')->get();
+        
+        $bulanList = PembayaranWifi::$namaBulan;
+        $tahunList = range(date('Y'), date('Y') - 3);
 
-        return view('tagihan-wifi.index', compact('tagihan', 'pelanggan'));
+        return view('tagihan-wifi.index', compact('tagihan', 'pelanggan', 'bulanList', 'tahunList'));
     }
 
     /**

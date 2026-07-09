@@ -44,6 +44,14 @@ class ApiController extends Controller
             $query->where('status', $request->status);
         }
 
+        if ($request->filled('bulan_tagihan')) {
+            $query->where('bulan_tagihan', $request->bulan_tagihan);
+        }
+
+        if ($request->filled('tahun_tagihan')) {
+            $query->where('tahun_tagihan', $request->tahun_tagihan);
+        }
+
         return response()->json([
             'success' => true,
             'data' => $query->get()
