@@ -187,40 +187,11 @@ class TagihanWifiController extends Controller
             // Header block
             imagefilledrectangle($im, 21, 21, 579, 120, $primary);
 
-            // Text rendering helper (Multi-OS support: macOS & Linux)
-            $fontPaths = [
-                '/System/Library/Fonts/Supplemental/Arial.ttf',
-                '/System/Library/Fonts/Arial.ttf',
-                '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',
-                '/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf',
-                '/usr/share/fonts/truetype/msttcorefonts/Arial.ttf',
-            ];
-            
-            $fontBoldPaths = [
-                '/System/Library/Fonts/Supplemental/Arial Bold.ttf',
-                '/System/Library/Fonts/Arial Bold.ttf',
-                '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf',
-                '/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf',
-                '/usr/share/fonts/truetype/msttcorefonts/Arial_Bold.ttf',
-            ];
+            // Text rendering helper (using local fonts inside the project directory to bypass open_basedir restriction)
+            $fontPath = public_path('fonts/Arial.ttf');
+            $fontBoldPath = public_path('fonts/Arial-Bold.ttf');
 
-            $fontPath = null;
-            foreach ($fontPaths as $path) {
-                if (file_exists($path)) {
-                    $fontPath = $path;
-                    break;
-                }
-            }
-
-            $fontBoldPath = null;
-            foreach ($fontBoldPaths as $path) {
-                if (file_exists($path)) {
-                    $fontBoldPath = $path;
-                    break;
-                }
-            }
-
-            if ($fontPath !== null && $fontBoldPath !== null) {
+            if (file_exists($fontPath) && file_exists($fontBoldPath)) {
                 // Title
                 imagettftext($im, 20, 0, 40, 65, $white, $fontBoldPath, "CONNECTPAY INVOICE");
                 imagettftext($im, 11, 0, 40, 95, $white, $fontPath, "Layanan Tagihan Internet WiFi");
