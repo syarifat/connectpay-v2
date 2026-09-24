@@ -35,7 +35,12 @@ class PelangganController extends Controller
             'no_hp'              => 'required|string|max:20',
             'tanggal_pembayaran' => 'required|integer|between:1,31',
             'paket_id'           => 'required|exists:paket_harga,id',
+            'is_aktif'           => 'nullable|boolean',
         ]);
+
+        if (!isset($validated['is_aktif'])) {
+            $validated['is_aktif'] = true;
+        }
 
         Pelanggan::create($validated);
 
@@ -58,12 +63,23 @@ class PelangganController extends Controller
             'no_hp'              => 'required|string|max:20',
             'tanggal_pembayaran' => 'required|integer|between:1,31',
             'paket_id'           => 'required|exists:paket_harga,id',
+            'is_aktif'           => 'nullable|boolean',
         ]);
 
         $pelanggan->update($validated);
 
         return redirect()->route('pelanggan.index')
             ->with('success', 'Data pelanggan berhasil diperbarui.');
+    }
+
+    public function toggleStatus(Pelanggan $pelanggan): RedirectResponse
+    {
+        $pelanggan->is_aktif = !$pelanggan->is_aktif;
+        $pelanggan->save();
+
+        $statusText = $pelanggan->is_aktif ? 'diaktifkan' : 'dinonaktifkan';
+        return redirect()->back()
+            ->with('success', "Status pelanggan {$pelanggan->nama} berhasil {$statusText}.");
     }
 
     public function destroy(Pelanggan $pelanggan): RedirectResponse

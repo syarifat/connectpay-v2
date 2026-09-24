@@ -15,6 +15,8 @@ class SendBillingReminders extends Command
      */
     public function handle()
     {
+        @set_time_limit(0);
+
         $todayDay = (int) date('j');
         $bulan    = (int) date('n');
         $tahun    = (int) date('Y');
@@ -23,6 +25,7 @@ class SendBillingReminders extends Command
         $this->info("Memproses tagihan WhatsApp untuk tanggal penagihan hari ke-{$todayDay}...");
 
         $customers = \App\Models\Pelanggan::with('paketHarga')
+            ->aktif()
             ->where('tanggal_pembayaran', $todayDay)
             ->get();
 
@@ -31,12 +34,15 @@ class SendBillingReminders extends Command
             return 0;
         }
 
-        $fonnte       = new \App\Services\FonnteService();
-        $countSuccess = 0;
-        $countFailed  = 0;
-        $countSkipped = 0;
+        $fonnte         = new \App\Services\FonnteService();
+        $countSuccess   = 0;
+        $countFailed    = 0;
+        $countSkipped   = 0;
+        $totalCustomers = $customers->count();
+        $currentIndex   = 0;
 
         foreach ($customers as $customer) {
+            $currentIndex++;
             // 1. Cari atau buat tagihan periode berjalan secara otomatis
             $tagihan = \App\Models\PembayaranWifi::where('pelanggan_id', $customer->id)
                 ->where('bulan_tagihan', $bulan)
@@ -152,6 +158,12 @@ class SendBillingReminders extends Command
             } else {
                 $countFailed++;
                 $this->error("✗ Gagal kirim ke {$customer->nama}: " . ($result['message'] ?? 'Unknown error'));
+            }
+
+            // 8. Proteksi anti-spam WhatsApp: Beri jeda 15 detik per pesan sebelum pesan berikutnya
+            if ($currentIndex < $totalCustomers) {
+                $this->line("  ⏳ Proteksi jeda 15 detik sebelum memproses pengiriman berikutnya...");
+                sleep(15);
             }
         }
 

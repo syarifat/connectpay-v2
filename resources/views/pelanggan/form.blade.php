@@ -92,6 +92,22 @@
                         <a href="{{ route('paket-harga.create') }}" class="underline">Tambah paket dulu</a>.
                     </p>
                     @endif
+                {{-- Status Aktif / Nonaktif --}}
+                <div>
+                    <label for="is_aktif" class="block text-sm font-medium text-slate-300 mb-1.5">
+                        Status Pelanggan <span class="text-red-400">*</span>
+                    </label>
+                    <select id="is_aktif" name="is_aktif"
+                            class="w-full px-4 py-2.5 bg-slate-800 border border-slate-700 text-slate-100 rounded-xl text-sm
+                                   focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50">
+                        <option value="1" {{ old('is_aktif', $pelanggan->is_aktif ?? true) ? 'selected' : '' }}>
+                            🟢 Aktif (Menerima pesan WhatsApp tagihan)
+                        </option>
+                        <option value="0" {{ !old('is_aktif', $pelanggan->is_aktif ?? true) ? 'selected' : '' }}>
+                            🔴 Nonaktif (Tidak akan dikirimi pesan WhatsApp)
+                        </option>
+                    </select>
+                    <p class="mt-1.5 text-xs text-slate-400">Jika Nonaktif, sistem tidak akan mengirim pesan WhatsApp atau reminder otomatis ke pelanggan ini.</p>
                 </div>
             </div>
 

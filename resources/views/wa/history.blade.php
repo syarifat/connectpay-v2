@@ -29,6 +29,20 @@
                 </a>
             @endif
         </div>
+
+        @if(isset($failedCount) && $failedCount > 0)
+            <div class="ml-auto">
+                <form action="{{ route('wa-history.resend-all') }}" method="POST"
+                      onsubmit="return confirm('Kirim ulang semua ({{ $failedCount }}) pesan yang gagal terkirim?')">
+                    @csrf
+                    <button type="submit"
+                            class="flex items-center gap-2 px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white text-sm font-semibold rounded-xl transition-colors shadow-lg shadow-amber-900/30">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                        Kirim Ulang Semua Gagal ({{ $failedCount }})
+                    </button>
+                </form>
+            </div>
+        @endif
     </form>
 </div>
 
@@ -43,6 +57,7 @@
                 <th class="px-5 py-3.5 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">No. HP / Target</th>
                 <th class="px-5 py-3.5 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Isi Pesan</th>
                 <th class="px-5 py-3.5 text-center text-xs font-semibold text-slate-400 uppercase tracking-wider">Status</th>
+                <th class="px-5 py-3.5 text-center text-xs font-semibold text-slate-400 uppercase tracking-wider">Aksi</th>
             </tr>
         </thead>
         <tbody class="divide-y divide-slate-800">
@@ -56,7 +71,12 @@
                 </td>
                 <td class="px-5 py-4">
                     @if($item->pelanggan)
-                        <p class="font-semibold text-slate-100">{{ $item->pelanggan->nama }}</p>
+                        <p class="font-semibold text-slate-100 flex items-center gap-1.5">
+                            {{ $item->pelanggan->nama }}
+                            @if(!$item->pelanggan->is_aktif)
+                                <span class="text-[10px] font-normal px-1.5 py-0.5 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20">Nonaktif</span>
+                            @endif
+                        </p>
                     @else
                         <span class="text-slate-500 font-medium">Uji Coba Manual</span>
                     @endif
@@ -78,10 +98,31 @@
                         </span>
                     @endif
                 </td>
+                <td class="px-5 py-4 text-center">
+                    @if($item->status !== 'sent')
+                        @if($item->pelanggan && !$item->pelanggan->is_aktif)
+                            <span class="text-xs text-slate-500 italic" title="Pelanggan nonaktif, pesan tidak dapat dikirim">
+                                Pelanggan Nonaktif
+                            </span>
+                        @else
+                            <form action="{{ route('wa-history.resend', $item->id) }}" method="POST"
+                                  onsubmit="return confirm('Kirim ulang pesan ini ke {{ $item->target }}?')">
+                                @csrf
+                                <button type="submit"
+                                        class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 rounded-lg transition-colors shadow-sm">
+                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                                    Kirim Ulang
+                                </button>
+                            </form>
+                        @endif
+                    @else
+                        <span class="text-slate-600 text-xs">-</span>
+                    @endif
+                </td>
             </tr>
             @empty
             <tr>
-                <td colspan="6" class="px-5 py-16 text-center text-slate-500">
+                <td colspan="7" class="px-5 py-16 text-center text-slate-500">
                     <svg class="w-10 h-10 mx-auto mb-3 text-slate-700" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
                     Belum ada riwayat pengiriman pesan WhatsApp.
                 </td>

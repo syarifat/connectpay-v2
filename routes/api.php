@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/pelanggan', [ApiController::class, 'getPelanggan']);
 Route::post('/pelanggan', [ApiController::class, 'storePelanggan']);
 Route::put('/pelanggan/{id}', [ApiController::class, 'updatePelanggan']);
+Route::patch('/pelanggan/{id}/toggle-status', [ApiController::class, 'toggleStatusPelanggan']);
 Route::delete('/pelanggan/{id}', [ApiController::class, 'deletePelanggan']);
 
 Route::get('/paket-harga', [ApiController::class, 'getPaketHarga']);
@@ -33,5 +34,7 @@ Route::post('/nota-custom', [ApiController::class, 'storeNotaCustom']);
 
 Route::get('/wa-status', [ApiController::class, 'getWaStatus']);
 Route::get('/wa-history', [ApiController::class, 'getWaHistory']);
+Route::post('/wa-history/{id}/resend', [ApiController::class, 'resendWaMessage']);
+Route::post('/wa-history/resend-all', [ApiController::class, 'resendAllFailedWaMessages']);
 Route::post('/wa-test-send', [ApiController::class, 'postWaTestSend']);
 Route::get('/send-billing-reminders', [ApiController::class, 'triggerBillingReminders']);

@@ -430,6 +430,7 @@ class ApiController extends Controller
     public function triggerBillingReminders(): JsonResponse
     {
         try {
+            @set_time_limit(0);
             \Illuminate\Support\Facades\Artisan::call('app:send-billing-reminders');
             $output = \Illuminate\Support\Facades\Artisan::output();
 
@@ -457,6 +458,7 @@ class ApiController extends Controller
             'no_hp'              => 'required|string|max:20',
             'tanggal_pembayaran' => 'required|integer|between:1,31',
             'paket_id'           => 'required|exists:paket_harga,id',
+            'is_aktif'           => 'nullable|boolean',
         ]);
 
         if ($validator->fails()) {
@@ -467,7 +469,12 @@ class ApiController extends Controller
             ], 422);
         }
 
-        $pelanggan = Pelanggan::create($request->all());
+        $data = $request->all();
+        if (!isset($data['is_aktif'])) {
+            $data['is_aktif'] = true;
+        }
+
+        $pelanggan = Pelanggan::create($data);
 
         return response()->json([
             'success' => true,
@@ -495,6 +502,7 @@ class ApiController extends Controller
             'no_hp'              => 'required|string|max:20',
             'tanggal_pembayaran' => 'required|integer|between:1,31',
             'paket_id'           => 'required|exists:paket_harga,id',
+            'is_aktif'           => 'nullable|boolean',
         ]);
 
         if ($validator->fails()) {
@@ -510,6 +518,31 @@ class ApiController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Pelanggan berhasil diperbarui.',
+            'data' => $pelanggan->load('paketHarga')
+        ]);
+    }
+
+    /**
+     * PATCH /api/pelanggan/{id}/toggle-status
+     */
+    public function toggleStatusPelanggan($id): JsonResponse
+    {
+        $pelanggan = Pelanggan::find($id);
+        if (!$pelanggan) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Pelanggan tidak ditemukan.'
+            ], 404);
+        }
+
+        $pelanggan->is_aktif = !$pelanggan->is_aktif;
+        $pelanggan->save();
+
+        $statusText = $pelanggan->is_aktif ? 'diaktifkan' : 'dinonaktifkan';
+
+        return response()->json([
+            'success' => true,
+            'message' => "Pelanggan {$pelanggan->nama} berhasil {$statusText}.",
             'data' => $pelanggan->load('paketHarga')
         ]);
     }
@@ -690,5 +723,122 @@ class ApiController extends Controller
             'success' => false,
             'message' => 'Gagal mengirim pesan: ' . ($result['message'] ?? 'Unknown error')
         ], 500);
+    }
+
+    /**
+     * POST /api/wa-history/{id}/resend
+     */
+    public function resendWaMessage($id): JsonResponse
+    {
+        $chat = \App\Models\WaChatHistory::with('pelanggan')->find($id);
+        if (!$chat) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Riwayat pesan tidak ditemukan.'
+            ], 404);
+        }
+
+        if ($chat->pelanggan && !$chat->pelanggan->is_aktif) {
+            return response()->json([
+                'success' => false,
+                'message' => "Pelanggan {$chat->pelanggan->nama} sedang nonaktif. Pesan tidak dikirim."
+            ], 400);
+        }
+
+        $target = $chat->target;
+        if (str_starts_with($target, '0')) {
+            $target = '62' . substr($target, 1);
+        }
+
+        $fonnte = new \App\Services\FonnteService();
+        $result = $fonnte->sendMessage($target, $chat->message);
+
+        $chat->update([
+            'status' => $result['success'] ? 'sent' : 'failed',
+            'response' => json_encode($result['raw'] ?? ['error' => $result['message'] ?? 'Unknown error']),
+            'updated_at' => now(),
+        ]);
+
+        if ($result['success']) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Pesan berhasil dikirim ulang ke WhatsApp.'
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Gagal mengirim ulang pesan: ' . ($result['message'] ?? 'Unknown error')
+        ], 500);
+    }
+
+    /**
+     * POST /api/wa-history/resend-all
+     */
+    public function resendAllFailedWaMessages(): JsonResponse
+    {
+        @set_time_limit(0);
+
+        $failedChats = \App\Models\WaChatHistory::where('status', '!=', 'sent')
+            ->with('pelanggan')
+            ->get();
+
+        if ($failedChats->isEmpty()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Tidak ada pesan gagal untuk dikirim ulang.',
+                'data' => ['success' => 0, 'failed' => 0, 'skipped' => 0]
+            ]);
+        }
+
+        $fonnte       = new \App\Services\FonnteService();
+        $countSuccess = 0;
+        $countFailed  = 0;
+        $countSkipped = 0;
+        $totalFailed  = $failedChats->count();
+        $currentIndex = 0;
+
+        foreach ($failedChats as $chat) {
+            $currentIndex++;
+
+            if ($chat->pelanggan && !$chat->pelanggan->is_aktif) {
+                $countSkipped++;
+                continue;
+            }
+
+            $target = $chat->target;
+            if (str_starts_with($target, '0')) {
+                $target = '62' . substr($target, 1);
+            }
+
+            $result = $fonnte->sendMessage($target, $chat->message);
+
+            $chat->update([
+                'status' => $result['success'] ? 'sent' : 'failed',
+                'response' => json_encode($result['raw'] ?? ['error' => $result['message'] ?? 'Unknown error']),
+                'updated_at' => now(),
+            ]);
+
+            if ($result['success']) {
+                $countSuccess++;
+            } else {
+                $countFailed++;
+            }
+
+            // Proteksi anti-spam WhatsApp: jeda 15 detik per pesan
+            if ($currentIndex < $totalFailed) {
+                sleep(15);
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => "Kirim ulang selesai: {$countSuccess} berhasil, {$countFailed} gagal, {$countSkipped} dilewati.",
+            'data' => [
+                'success' => $countSuccess,
+                'failed' => $countFailed,
+                'skipped' => $countSkipped,
+            ]
+        ]);
     }
 }

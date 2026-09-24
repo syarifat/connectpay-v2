@@ -24,15 +24,21 @@
                 <th class="px-5 py-3.5 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Tgl Bayar</th>
                 <th class="px-5 py-3.5 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Paket</th>
                 <th class="px-5 py-3.5 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">Alamat</th>
+                <th class="px-5 py-3.5 text-center text-xs font-semibold text-slate-400 uppercase tracking-wider">Status Pesan</th>
                 <th class="px-5 py-3.5 text-right text-xs font-semibold text-slate-400 uppercase tracking-wider">Aksi</th>
             </tr>
         </thead>
         <tbody class="divide-y divide-slate-800">
             @forelse($pelanggan as $index => $item)
-            <tr class="hover:bg-slate-800/40 transition-colors">
+            <tr class="hover:bg-slate-800/40 transition-colors {{ !$item->is_aktif ? 'opacity-70 bg-slate-950/40' : '' }}">
                 <td class="px-5 py-4 text-slate-500 text-xs">{{ $pelanggan->firstItem() + $index }}</td>
                 <td class="px-5 py-4">
-                    <p class="font-semibold text-slate-100">{{ $item->nama }}</p>
+                    <p class="font-semibold text-slate-100 flex items-center gap-2">
+                        {{ $item->nama }}
+                        @if(!$item->is_aktif)
+                            <span class="text-[10px] font-normal px-2 py-0.5 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20">Nonaktif</span>
+                        @endif
+                    </p>
                 </td>
                 <td class="px-5 py-4 text-slate-300">{{ $item->no_hp }}</td>
                 <td class="px-5 py-4 text-slate-300">
@@ -53,14 +59,49 @@
                     @endif
                 </td>
                 <td class="px-5 py-4 text-slate-400 max-w-xs truncate">{{ $item->alamat }}</td>
+                <td class="px-5 py-4 text-center">
+                    @if($item->is_aktif)
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-400 text-xs font-semibold" title="Menerima pesan otomatis & reminder WhatsApp">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                            Aktif
+                        </span>
+                    @else
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-rose-500/15 text-rose-400 text-xs font-semibold" title="Tidak dikirimi pesan WhatsApp">
+                            <span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span>
+                            Nonaktif
+                        </span>
+                    @endif
+                </td>
                 <td class="px-5 py-4">
                     <div class="flex items-center justify-end gap-2">
+                        {{-- Tombol Toggle Aktif / Nonaktif --}}
+                        <form action="{{ route('pelanggan.toggle-status', $item) }}" method="POST"
+                              onsubmit="return confirm('{{ $item->is_aktif ? "Nonaktifkan pelanggan {$item->nama}? Pelanggan nonaktif tidak akan dikirimi pesan tagihan/reminder lagi." : "Aktifkan kembali pelanggan {$item->nama}?" }}')">
+                            @csrf
+                            @method('PATCH')
+                            @if($item->is_aktif)
+                                <button type="submit"
+                                        class="px-2.5 py-1.5 text-xs font-medium text-amber-400 border border-amber-500/30 rounded-lg hover:bg-amber-500/10 transition-colors flex items-center gap-1"
+                                        title="Nonaktifkan pengiriman pesan">
+                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" /></svg>
+                                    Nonaktifkan
+                                </button>
+                            @else
+                                <button type="submit"
+                                        class="px-2.5 py-1.5 text-xs font-medium text-emerald-400 border border-emerald-500/30 rounded-lg hover:bg-emerald-500/10 transition-colors flex items-center gap-1"
+                                        title="Aktifkan pengiriman pesan">
+                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                                    Aktifkan
+                                </button>
+                            @endif
+                        </form>
+
                         <a href="{{ route('pelanggan.edit', $item) }}"
                            class="px-3 py-1.5 text-xs font-medium text-blue-400 border border-blue-500/30 rounded-lg hover:bg-blue-500/10 transition-colors">
                             Edit
                         </a>
                         <form action="{{ route('pelanggan.destroy', $item) }}" method="POST"
-                              onsubmit="return confirm('Yakin hapus pelanggan {{ $item->nama }}?')">
+                               onsubmit="return confirm('Yakin hapus pelanggan {{ $item->nama }}?')">
                             @csrf
                             @method('DELETE')
                             <button type="submit"
@@ -73,7 +114,7 @@
             </tr>
             @empty
             <tr>
-                <td colspan="6" class="px-5 py-16 text-center text-slate-500">
+                <td colspan="8" class="px-5 py-16 text-center text-slate-500">
                     <svg class="w-10 h-10 mx-auto mb-3 text-slate-700" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" /></svg>
                     Belum ada pelanggan. <a href="{{ route('pelanggan.create') }}" class="text-blue-400 hover:underline">Tambah sekarang</a>.
                 </td>

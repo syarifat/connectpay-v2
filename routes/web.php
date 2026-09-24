@@ -46,6 +46,8 @@ Route::middleware('admin.auth')->group(function () {
     Route::resource('paket-harga', PaketHargaController::class)->except(['show']);
 
     // Master: Pelanggan
+    Route::patch('pelanggan/{pelanggan}/toggle-status', [PelangganController::class, 'toggleStatus'])
+        ->name('pelanggan.toggle-status');
     Route::resource('pelanggan', PelangganController::class)->except(['show']);
 
     // ─── Tagihan WiFi (Buat & Kelola Tagihan) ────────────────────────────────
@@ -73,6 +75,10 @@ Route::middleware('admin.auth')->group(function () {
         ->name('wa-status.index');
     Route::get('wa-history', [FonnteController::class, 'history'])
         ->name('wa-history.index');
+    Route::post('wa-history/{id}/resend', [FonnteController::class, 'resend'])
+        ->name('wa-history.resend');
+    Route::post('wa-history/resend-all', [FonnteController::class, 'resendAllFailed'])
+        ->name('wa-history.resend-all');
     Route::post('wa-test-send', [FonnteController::class, 'testSend'])
         ->name('wa-status.test-send');
 });

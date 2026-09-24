@@ -16,7 +16,17 @@ class Pelanggan extends Model
         'no_hp',
         'tanggal_pembayaran',
         'paket_id',
+        'is_aktif',
     ];
+
+    protected $casts = [
+        'is_aktif' => 'boolean',
+    ];
+
+    public function scopeAktif($query)
+    {
+        return $query->where('is_aktif', true);
+    }
 
     public function paketHarga(): BelongsTo
     {
