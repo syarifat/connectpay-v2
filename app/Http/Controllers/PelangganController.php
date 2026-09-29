@@ -74,12 +74,17 @@ class PelangganController extends Controller
 
     public function toggleStatus(Pelanggan $pelanggan): RedirectResponse
     {
-        $pelanggan->is_aktif = !$pelanggan->is_aktif;
-        $pelanggan->save();
+        try {
+            $pelanggan->is_aktif = !$pelanggan->is_aktif;
+            $pelanggan->save();
 
-        $statusText = $pelanggan->is_aktif ? 'diaktifkan' : 'dinonaktifkan';
-        return redirect()->back()
-            ->with('success', "Status pelanggan {$pelanggan->nama} berhasil {$statusText}.");
+            $statusText = $pelanggan->is_aktif ? 'diaktifkan' : 'dinonaktifkan';
+            return redirect()->back()
+                ->with('success', "Status pelanggan {$pelanggan->nama} berhasil {$statusText}.");
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Gagal mengubah status pelanggan: ' . $e->getMessage());
+        }
     }
 
     public function destroy(Pelanggan $pelanggan): RedirectResponse

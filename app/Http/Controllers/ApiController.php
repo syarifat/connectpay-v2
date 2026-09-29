@@ -535,16 +535,23 @@ class ApiController extends Controller
             ], 404);
         }
 
-        $pelanggan->is_aktif = !$pelanggan->is_aktif;
-        $pelanggan->save();
+        try {
+            $pelanggan->is_aktif = !$pelanggan->is_aktif;
+            $pelanggan->save();
 
-        $statusText = $pelanggan->is_aktif ? 'diaktifkan' : 'dinonaktifkan';
+            $statusText = $pelanggan->is_aktif ? 'diaktifkan' : 'dinonaktifkan';
 
-        return response()->json([
-            'success' => true,
-            'message' => "Pelanggan {$pelanggan->nama} berhasil {$statusText}.",
-            'data' => $pelanggan->load('paketHarga')
-        ]);
+            return response()->json([
+                'success' => true,
+                'message' => "Pelanggan {$pelanggan->nama} berhasil {$statusText}.",
+                'data' => $pelanggan->load('paketHarga')
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengubah status pelanggan: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
