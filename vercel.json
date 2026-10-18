@@ -1,9 +1,8 @@
 {
   "version": 2,
   "framework": null,
-  "buildCommand": "composer install --optimize-autoloader --no-dev && npm install && npm run build",
+  "buildCommand": "npm install && npm run build",
   "devCommand": "php artisan serve --host=0.0.0.0 --port=$PORT",
-  "installCommand": "composer install --optimize-autoloader --no-dev",
   "functions": {
     "api/index.php": {
       "runtime": "vercel-php@0.6.1"
