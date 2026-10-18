@@ -1,16 +1,11 @@
 <?php
 
-use Illuminate\Foundation\Application;
-use Illuminate\Http\Request;
+// Vercel PHP runtime fix: ensure correct working directory
+chdir(__DIR__ . '/..');
 
-define('LARAVEL_START', microtime(true));
+// Force proper headers for Laravel on Vercel
+header_remove('Content-Type');
+header('Content-Type: text/html; charset=UTF-8');
 
-if (file_exists($maintenance = __DIR__.'/../storage/framework/maintenance.php')) {
-    require $maintenance;
-}
-
-require __DIR__.'/../vendor/autoload.php';
-
-$app = require_once __DIR__.'/../bootstrap/app.php';
-
-$app->handleRequest(Request::capture());
+// Require Laravel entry point
+require __DIR__ . '/../public/index.php';
