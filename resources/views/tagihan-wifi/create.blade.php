@@ -144,7 +144,7 @@ function tagihanForm() {
                 return;
             }
             try {
-                const res = await fetch(`/tagihan-wifi/api/cek-cicilan/${this.selectedPelangganId}`);
+                const res = await fetch(`/tagihan-wifi/backend/cek-cicilan/${this.selectedPelangganId}`);
                 this.cicilanLalu = await res.json();
             } catch (e) {
                 this.cicilanLalu = [];

@@ -194,7 +194,7 @@ function pembayaranForm() {
             }
             this.loading = true;
             try {
-                const res = await fetch(`/pembayaran-wifi/api/tagihan/${this.pelangganId}`);
+                const res = await fetch(`/pembayaran-wifi/backend/tagihan/${this.pelangganId}`);
                 this.tagihanList = await res.json();
 
                 // Jika ada tagihan_id dari query param (dari tombol Bayar di index tagihan)

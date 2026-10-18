@@ -55,7 +55,7 @@ Route::middleware('admin.auth')->group(function () {
         ->except(['show', 'edit', 'update', 'destroy']);
 
     // API: cek cicilan belum lunas milik pelanggan (untuk warning di form buat tagihan)
-    Route::get('tagihan-wifi/api/cek-cicilan/{pelanggan_id}', [TagihanWifiController::class, 'cekCicilanLalu'])
+    Route::get('tagihan-wifi/backend/cek-cicilan/{pelanggan_id}', [TagihanWifiController::class, 'cekCicilanLalu'])
         ->name('tagihan-wifi.cek-cicilan');
 
     // ─── Pembayaran WiFi (Proses Bayar) ──────────────────────────────────────
@@ -63,7 +63,7 @@ Route::middleware('admin.auth')->group(function () {
         ->except(['show', 'edit', 'update', 'destroy']);
 
     // API: load tagihan belum lunas milik pelanggan (untuk dropdown di form bayar)
-    Route::get('pembayaran-wifi/api/tagihan/{pelanggan_id}', [PembayaranWifiController::class, 'getTagihan'])
+    Route::get('pembayaran-wifi/backend/tagihan/{pelanggan_id}', [PembayaranWifiController::class, 'getTagihan'])
         ->name('pembayaran-wifi.get-tagihan');
 
     // ─── Nota Custom (Non-WiFi) ──────────────────────────────────────────────

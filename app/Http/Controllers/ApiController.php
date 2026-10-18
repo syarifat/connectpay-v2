@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Validator;
 class ApiController extends Controller
 {
     /**
-     * GET /api/pelanggan
+     * GET /backend/pelanggan
      * Get list of all pelanggan with their active packages.
      */
     public function getPelanggan(): JsonResponse
@@ -29,7 +29,7 @@ class ApiController extends Controller
     }
 
     /**
-     * GET /api/tagihan-wifi
+     * GET /backend/tagihan-wifi
      * Get all wifi bills (optional filters: pelanggan_id, status)
      */
     public function getTagihanWifi(Request $request): JsonResponse
@@ -59,7 +59,7 @@ class ApiController extends Controller
     }
 
     /**
-     * GET /api/tagihan-wifi/{id}
+     * GET /backend/tagihan-wifi/{id}
      * Get details of a single tagihan, including pelanggan details,
      * installment history, and previous unpaid bills (tunggakan).
      */
@@ -95,7 +95,7 @@ class ApiController extends Controller
     }
 
     /**
-     * GET /api/tagihan-wifi/cek-cicilan/{pelanggan_id}
+     * GET /backend/tagihan-wifi/cek-cicilan/{pelanggan_id}
      * Check previous unpaid bills/installments for warning banner.
      */
     public function cekCicilanLalu(int $pelangganId): JsonResponse
@@ -113,7 +113,7 @@ class ApiController extends Controller
     }
 
     /**
-     * POST /api/tagihan-wifi
+     * POST /backend/tagihan-wifi
      * Create a new wifi bill (Status: Belum Dibayar)
      */
     public function storeTagihanWifi(Request $request): JsonResponse
@@ -166,7 +166,7 @@ class ApiController extends Controller
     }
 
     /**
-     * GET /api/pembayaran-wifi
+     * GET /backend/pembayaran-wifi
      */
     public function getPembayaranWifi(Request $request): JsonResponse
     {
@@ -198,7 +198,7 @@ class ApiController extends Controller
     }
 
     /**
-     * POST /api/pembayaran-wifi
+     * POST /backend/pembayaran-wifi
      * Store installment/payment for WiFi bill
      */
     public function storePembayaranWifi(Request $request): JsonResponse
@@ -272,7 +272,7 @@ class ApiController extends Controller
     }
 
     /**
-     * GET /api/nota-custom
+     * GET /backend/nota-custom
      * Get list of custom bills.
      */
     public function getNotaCustom(): JsonResponse
@@ -285,7 +285,7 @@ class ApiController extends Controller
     }
 
     /**
-     * GET /api/nota-custom/{id}
+     * GET /backend/nota-custom/{id}
      * Get detail of a custom bill including items.
      */
     public function getNotaCustomDetail(int $id): JsonResponse
@@ -306,7 +306,7 @@ class ApiController extends Controller
     }
 
     /**
-     * POST /api/nota-custom
+     * POST /backend/nota-custom
      * Create custom bill (master-detail transaction)
      */
     public function storeNotaCustom(Request $request): JsonResponse
@@ -394,7 +394,7 @@ class ApiController extends Controller
     }
 
     /**
-     * GET /api/wa-status
+     * GET /backend/wa-status
      */
     public function getWaStatus(): JsonResponse
     {
@@ -408,7 +408,7 @@ class ApiController extends Controller
     }
 
     /**
-     * GET /api/wa-history
+     * GET /backend/wa-history
      */
     public function getWaHistory(Request $request): JsonResponse
     {
@@ -425,7 +425,7 @@ class ApiController extends Controller
     }
 
     /**
-     * GET /api/send-billing-reminders
+     * GET /backend/send-billing-reminders
      */
     public function triggerBillingReminders(): JsonResponse
     {
@@ -448,7 +448,7 @@ class ApiController extends Controller
     }
 
     /**
-     * POST /api/pelanggan
+     * POST /backend/pelanggan
      */
     public function storePelanggan(Request $request): JsonResponse
     {
@@ -484,7 +484,7 @@ class ApiController extends Controller
     }
 
     /**
-     * PUT /api/pelanggan/{id}
+     * PUT /backend/pelanggan/{id}
      */
     public function updatePelanggan(Request $request, $id): JsonResponse
     {
@@ -523,7 +523,7 @@ class ApiController extends Controller
     }
 
     /**
-     * PATCH /api/pelanggan/{id}/toggle-status
+     * PATCH /backend/pelanggan/{id}/toggle-status
      */
     public function toggleStatusPelanggan($id): JsonResponse
     {
@@ -555,7 +555,7 @@ class ApiController extends Controller
     }
 
     /**
-     * DELETE /api/pelanggan/{id}
+     * DELETE /backend/pelanggan/{id}
      */
     public function deletePelanggan($id): JsonResponse
     {
@@ -583,7 +583,7 @@ class ApiController extends Controller
     }
 
     /**
-     * GET /api/paket-harga
+     * GET /backend/paket-harga
      */
     public function getPaketHarga(): JsonResponse
     {
@@ -595,7 +595,7 @@ class ApiController extends Controller
     }
 
     /**
-     * POST /api/paket-harga
+     * POST /backend/paket-harga
      */
     public function storePaketHarga(Request $request): JsonResponse
     {
@@ -623,7 +623,7 @@ class ApiController extends Controller
     }
 
     /**
-     * PUT /api/paket-harga/{id}
+     * PUT /backend/paket-harga/{id}
      */
     public function updatePaketHarga(Request $request, $id): JsonResponse
     {
@@ -659,7 +659,7 @@ class ApiController extends Controller
     }
 
     /**
-     * DELETE /api/paket-harga/{id}
+     * DELETE /backend/paket-harga/{id}
      */
     public function deletePaketHarga($id): JsonResponse
     {
@@ -687,7 +687,7 @@ class ApiController extends Controller
     }
 
     /**
-     * POST /api/wa-test-send
+     * POST /backend/wa-test-send
      */
     public function postWaTestSend(Request $request): JsonResponse
     {
@@ -733,7 +733,7 @@ class ApiController extends Controller
     }
 
     /**
-     * POST /api/wa-history/{id}/resend
+     * POST /backend/wa-history/{id}/resend
      */
     public function resendWaMessage($id): JsonResponse
     {
@@ -780,7 +780,7 @@ class ApiController extends Controller
     }
 
     /**
-     * POST /api/wa-history/resend-all
+     * POST /backend/wa-history/resend-all
      */
     public function resendAllFailedWaMessages(): JsonResponse
     {

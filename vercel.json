@@ -5,7 +5,7 @@
   "devCommand": "php artisan serve --host=0.0.0.0 --port=$PORT",
   "installCommand": "composer install --optimize-autoloader --no-dev",
   "functions": {
-    "backend/index.php": {
+    "api/index.php": {
       "runtime": "vercel-php@0.6.1"
     }
   },
@@ -28,7 +28,7 @@
     },
     {
       "src": "/(.*)",
-      "dest": "/backend/index.php"
+      "dest": "/api/index.php"
     }
   ],
   "headers": [
