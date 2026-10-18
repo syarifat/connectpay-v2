@@ -26,7 +26,8 @@
     },
     {
       "src": "/(.*)",
-      "dest": "/api/index.php"
+      "dest": "/api/index.php",
+      "override": true
     }
   ],
   "headers": [
