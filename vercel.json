@@ -2,6 +2,12 @@
   "version": 2,
   "framework": null,
   "devCommand": "php artisan serve --host=0.0.0.0 --port=$PORT",
+  "builds": [
+    {
+      "src": "api/index.php",
+      "use": "@vercel/php"
+    }
+  ],
   "functions": {
     "api/index.php": {
       "runtime": "vercel-php@0.7.4"
