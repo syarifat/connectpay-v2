@@ -3,6 +3,9 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
 
+// Force proper content type for Vercel
+header('Content-Type: text/html; charset=UTF-8');
+
 define('LARAVEL_START', microtime(true));
 
 // Determine if the application is in maintenance mode...
